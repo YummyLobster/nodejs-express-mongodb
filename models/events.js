@@ -1,48 +1,45 @@
-var mongoose = require('mongoose');
+'use strict';
 
-//events Schema
-var eventsSchema = mongoose.Schema({
-    _id:{
-        type: Number,
-        required: true
-    },
-	name:{
-        type:String,
-        required: true
-    },
-	dateTime: {
-        type: Date,
-        required: true
-    },
-    organizer:{
-        type: String,
-        required: true
-    },
-    attendees:{
-        type: Array
-    },
-    status:{
-        type: String,
-        required: true,
-        default: "SUBMITTED"
-    }
+const mongoose = require('mongoose');
+const User = require('./users');
+const Program = require('./programs');
+const Schema = mongoose.Schema;
+
+let eventSchema = new Schema({
+	name: {
+		type: String,
+		required: true
+	},
+	description: {
+		type: String,
+	},
+	location: {
+		type: String,
+		required: true
+	},
+	startTime: {
+		type: Date,
+		required: true
+	},
+	endTime: {
+		type: Date,
+		required: true
+	},
+	status: {
+		type: String,
+		enum: ['SUBMITTED', 'POSTED', 'REJECTED'],
+		default: 'SUBMITTED',
+		required: true
+	},
+	tag: [String],
+	organizer: {
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	attendees:[{
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	}]
 });
 
-var Events = module.exports = mongoose.model('Events',eventsSchema);
-
-//get events
-module.exports.getEvents = function(callback, limit){
-    Events.find(callback).limit(limit);
-}
-//add events
-module.exports.addEvent = function(event, callback){
-    Events.create(event,callback);
-}
-//update programs
-module.exports.updateEvent = function(id, event, options, callback){
-    var query = {_id:id};
-    var update = {
-        status: event.status
-    }
-    Events.findOneAndUpdate(query,update,options,callback);
-}
+module.exports = mongoose.model('Event', eventSchema);
